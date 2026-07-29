@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -309,8 +310,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String shareText(String title) =>
-      '「$title」の実績を解除しました！ 🎉\n#ヒマジン #暇人実績';
+  String shareText(String title) => '「$title」の実績を解除しました！ 🎉\n#ヒマジン #暇人実績';
 
   @override
   String formatUnlockedAt(DateTime dt) =>
