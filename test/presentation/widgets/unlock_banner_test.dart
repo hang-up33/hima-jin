@@ -45,7 +45,7 @@ void main() {
     )));
     await tester.pump();
 
-    expect(find.text('実績解除！'), findsOneWidget);
+    expect(find.text('Achievement Unlocked!'), findsOneWidget);
     expect(find.text(_first.title), findsOneWidget);
     expect(find.text(_first.description), findsOneWidget);
     expect(find.textContaining('+'), findsNothing);

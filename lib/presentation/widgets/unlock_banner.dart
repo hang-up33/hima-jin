@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/entities/achievement.dart';
+import '../../l10n/app_localizations.dart';
 import 'icons/app_icon.dart';
 import 'rarity_badge.dart';
 
@@ -94,6 +95,8 @@ class _BannerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final first = achievements.first;
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -129,7 +132,7 @@ class _BannerCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '実績解除！',
+                        l10n.unlockBannerLabel,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -138,7 +141,7 @@ class _BannerCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        first.title,
+                        first.titleFor(locale),
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
@@ -146,7 +149,7 @@ class _BannerCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        first.description,
+                        first.descriptionFor(locale),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary,

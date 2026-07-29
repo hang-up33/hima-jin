@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart'; // ignore: unused_import
 import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/achievement_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
@@ -22,18 +22,19 @@ class AchievementDetailScreen extends ConsumerWidget {
     final isUnlocked = unlocked != null;
     final progress = ref.watch(achievementProgressProvider(achievementId));
     final rarityColor = AppColors.rarityColor(achievement.rarity);
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
+    final title = achievement.titleFor(locale);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('実績詳細'),
+        title: Text(l10n.detailTitle),
         actions: [
           if (isUnlocked)
             IconButton(
               icon: const Icon(Icons.share),
               onPressed: () {
-                Share.share(
-                  '「${achievement.title}」の実績を解除しました！ 🎉\n#ヒマジン #暇人実績',
-                );
+                Share.share(l10n.shareText(title));
               },
             ),
         ],
@@ -61,7 +62,7 @@ class AchievementDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isUnlocked ? achievement.title : (achievement.isHidden ? '???' : achievement.title),
+              (!isUnlocked && achievement.isHidden) ? '???' : title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
@@ -71,9 +72,9 @@ class AchievementDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              isUnlocked
-                  ? achievement.description
-                  : (achievement.isHidden ? '解除するまで謎のまま...' : achievement.description),
+              (!isUnlocked && achievement.isHidden)
+                  ? l10n.hiddenLockedDescription
+                  : achievement.descriptionFor(locale),
               style: const TextStyle(
                 fontSize: 15,
                 color: AppColors.textSecondary,
@@ -93,15 +94,15 @@ class AchievementDetailScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      '解除日時',
-                      style: TextStyle(
+                      l10n.unlockedAtLabel,
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      DateFormat('yyyy年M月d日 HH:mm').format(unlocked.unlockedAt),
+                      l10n.formatUnlockedAt(unlocked.unlockedAt),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -112,9 +113,9 @@ class AchievementDetailScreen extends ConsumerWidget {
                 ),
               ),
             ] else if (!achievement.isHidden) ...[
-              const Text(
-                '進捗',
-                style: TextStyle(
+              Text(
+                l10n.progressLabel,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,

@@ -35,10 +35,10 @@ void main() {
     await tester.pumpWidget(_wrap());
     await tester.pumpAndSettle();
 
-    expect(find.text('新米暇人'), findsOneWidget);
+    expect(find.text('Rookie Idler'), findsOneWidget);
     expect(find.text('Lv.1'), findsOneWidget);
-    expect(find.text('連続ログイン'), findsOneWidget);
-    expect(find.text('0日'), findsOneWidget);
+    expect(find.text('Streak'), findsOneWidget);
+    expect(find.text('0d'), findsOneWidget);
   });
 
   testWidgets('5 unlocked achievements shows 見習い暇人 at level 2',
@@ -46,7 +46,7 @@ void main() {
     await tester.pumpWidget(_wrap(unlockedCount: 5));
     await tester.pumpAndSettle();
 
-    expect(find.text('見習い暇人'), findsOneWidget);
+    expect(find.text('Apprentice Idler'), findsOneWidget);
     expect(find.text('Lv.2'), findsOneWidget);
   });
 
@@ -55,7 +55,7 @@ void main() {
     await tester.pumpWidget(_wrap(unlockedCount: 15));
     await tester.pumpAndSettle();
 
-    expect(find.text('中級暇人'), findsOneWidget);
+    expect(find.text('Intermediate Idler'), findsOneWidget);
     expect(find.text('Lv.4'), findsOneWidget);
   });
 
@@ -64,7 +64,7 @@ void main() {
     await tester.pumpWidget(_wrap(unlockedCount: 50));
     await tester.pumpAndSettle();
 
-    expect(find.text('暇人の神'), findsOneWidget);
+    expect(find.text('Idle God'), findsOneWidget);
     expect(find.text('Lv.11'), findsOneWidget);
   });
 
@@ -79,7 +79,7 @@ void main() {
     await tester.pumpWidget(_wrap(logs: logs));
     await tester.pumpAndSettle();
 
-    expect(find.text('3日'), findsOneWidget);
+    expect(find.text('3d'), findsOneWidget);
   });
 
   testWidgets('a gap further back does not break a streak anchored on today',
@@ -93,7 +93,7 @@ void main() {
     await tester.pumpWidget(_wrap(logs: logs));
     await tester.pumpAndSettle();
 
-    expect(find.text('1日'), findsOneWidget);
+    expect(find.text('1d'), findsOneWidget);
   });
 
   testWidgets('streak resets to 0 when the last log is older than yesterday',
@@ -104,7 +104,7 @@ void main() {
     await tester.pumpWidget(_wrap(logs: logs));
     await tester.pumpAndSettle();
 
-    expect(find.text('0日'), findsOneWidget);
+    expect(find.text('0d'), findsOneWidget);
   });
 
   testWidgets('total hours and top tags reflect the logged activity',
@@ -119,17 +119,17 @@ void main() {
     await tester.pumpWidget(_wrap(logs: logs));
     await tester.pumpAndSettle();
 
-    expect(find.text('3件'), findsOneWidget);
-    expect(find.text('2時間'), findsOneWidget);
-    expect(find.text('よくやること TOP5'), findsOneWidget);
-    expect(find.text(ActivityTag.nap.label), findsOneWidget);
-    expect(find.text(ActivityTag.walk.label), findsOneWidget);
+    expect(find.text('3'), findsOneWidget);
+    expect(find.text('2h'), findsOneWidget);
+    expect(find.text('Top 5 Activities'), findsOneWidget);
+    expect(find.text(ActivityTag.nap.labelEn), findsOneWidget);
+    expect(find.text(ActivityTag.walk.labelEn), findsOneWidget);
   });
 
   testWidgets('the OSS license entry is always shown', (tester) async {
     await tester.pumpWidget(_wrap());
     await tester.pumpAndSettle();
 
-    expect(find.text('オープンソースライセンス'), findsOneWidget);
+    expect(find.text('Open-Source Licenses'), findsOneWidget);
   });
 }

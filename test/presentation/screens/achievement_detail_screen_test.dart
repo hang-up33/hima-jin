@@ -24,7 +24,7 @@ void main() {
     await tester.pumpWidget(_wrap('first_walk', FakeAchievementRepository()));
     await tester.pumpAndSettle();
 
-    expect(find.text('散歩デビュー'), findsOneWidget);
+    expect(find.text('Walk Debut'), findsOneWidget);
     expect(find.text('0%'), findsOneWidget);
     expect(find.byIcon(Icons.share), findsNothing);
   });
@@ -40,8 +40,8 @@ void main() {
     await tester.pumpWidget(_wrap('first_walk', achRepo));
     await tester.pumpAndSettle();
 
-    expect(find.text('散歩デビュー'), findsOneWidget);
-    expect(find.textContaining('2025年6月3日'), findsOneWidget);
+    expect(find.text('Walk Debut'), findsOneWidget);
+    expect(find.textContaining('Jun 3, 2025'), findsOneWidget);
     expect(find.byIcon(Icons.share), findsOneWidget);
   });
 
@@ -51,7 +51,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('???'), findsOneWidget);
-    expect(find.text('解除するまで謎のまま...'), findsOneWidget);
+    expect(find.text('A mystery until you unlock it...'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
 }

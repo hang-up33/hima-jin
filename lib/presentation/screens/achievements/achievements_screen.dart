@@ -5,6 +5,7 @@ import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/achievement.dart';
 import '../../../domain/enums/achievement_rarity.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/achievement_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
@@ -18,16 +19,17 @@ class AchievementsScreen extends ConsumerWidget {
     final enriched = ref.watch(enrichedAchievementsProvider);
     final unlockedCount = ref.watch(unlockedCountProvider);
     final total = kVisibleAchievementCount;
+    final l10n = AppLocalizations.of(context);
 
     return DefaultTabController(
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('実績 $unlockedCount / $total'),
+          title: Text(l10n.achievementsHeader(unlockedCount, total)),
           bottom: TabBar(
             isScrollable: true,
             tabs: [
-              const Tab(text: 'すべて'),
+              Tab(text: l10n.tabAll),
               ...AchievementRarity.values.map(
                 (rarity) => Tab(
                   child: Row(
@@ -110,8 +112,11 @@ class _AchievementGrid extends StatelessWidget {
         : enriched.where((e) => e.achievement.rarity == rarity).toList();
 
     if (filtered.isEmpty) {
-      return const Center(
-        child: Text('まだ実績がありません', style: TextStyle(color: AppColors.textSecondary)),
+      return Center(
+        child: Text(
+          AppLocalizations.of(context).emptyAchievements,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
       );
     }
 

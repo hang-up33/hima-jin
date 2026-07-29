@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hima_jin/l10n/app_localizations.dart';
+
+/// Localization wiring shared by every test host below, mirroring what the
+/// real [MaterialApp] in `app.dart` sets up. Without these delegates
+/// `AppLocalizations.of(context)` would be null and localized widgets would
+/// throw. Tests run under the default `en` locale.
+const _localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+  AppLocalizations.delegate,
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+];
 
 /// Wraps [child] in a bare [ProviderScope] with the given [overrides] —
 /// for widgets that are already a full `MaterialApp`/`MaterialApp.router`
@@ -21,7 +34,11 @@ Widget wrapWithProviders(
 }) {
   return ProviderScope(
     overrides: overrides,
-    child: MaterialApp(home: child),
+    child: MaterialApp(
+      localizationsDelegates: _localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    ),
   );
 }
 
@@ -33,11 +50,19 @@ Widget wrapWithProvidersAndRouter(
 }) {
   return ProviderScope(
     overrides: overrides,
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(
+      localizationsDelegates: _localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      routerConfig: router,
+    ),
   );
 }
 
 /// Minimal host for leaf widgets that don't read any Riverpod provider.
 Widget wrapMinimal(Widget child) {
-  return MaterialApp(home: Scaffold(body: child));
+  return MaterialApp(
+    localizationsDelegates: _localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: Scaffold(body: child),
+  );
 }

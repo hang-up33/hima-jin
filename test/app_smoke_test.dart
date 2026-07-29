@@ -21,9 +21,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('ヒマジン'), findsOneWidget);
-    expect(find.text('ホーム'), findsOneWidget);
-    expect(find.text('実績'), findsOneWidget);
-    expect(find.text('プロフィール'), findsOneWidget);
+    expect(find.text('Himajin'), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Achievements'), findsOneWidget);
+    expect(find.text('Profile'), findsOneWidget);
   });
 }

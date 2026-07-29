@@ -5,6 +5,7 @@ import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/activity_log.dart';
 import '../../../domain/enums/activity_tag.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/achievement_providers.dart';
 import '../../providers/log_providers.dart';
 import '../../widgets/icons/app_icon.dart';
@@ -51,7 +52,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         tag: log.tag,
         initialNote: log.note,
         initialDurationMinutes: log.durationMinutes,
-        submitLabel: '更新する',
+        submitLabel: AppLocalizations.of(context).updateButton,
         onSubmit: (note, minutes) => _submitAndCheckAchievements(() async {
           await ref.read(logNotifierProvider.notifier).edit(
                 id: log.id,
@@ -79,10 +80,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final todayLogs = ref.watch(todayLogsProvider);
     final unlockedCount = ref.watch(unlockedCountProvider);
     final totalAchievements = kVisibleAchievementCount;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ヒマジン'),
+        title: Text(l10n.appTitle),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -107,9 +109,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '今日何した？',
-                    style: TextStyle(
+                  Text(
+                    l10n.homeHeading,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -117,8 +119,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'タップして記録しよう',
-                    style: TextStyle(
+                    l10n.homeSubtitle,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
@@ -155,12 +157,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
           if (todayLogs.isNotEmpty) ...[
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                 child: Text(
-                  '今日の記録',
-                  style: TextStyle(
+                  l10n.homeTodaySection,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -224,7 +226,7 @@ class _TagButton extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              tag.label,
+              tag.labelFor(Localizations.localeOf(context)),
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,

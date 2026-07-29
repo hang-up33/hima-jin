@@ -3,21 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/enums/activity_tag.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../providers/achievement_providers.dart';
+import '../../providers/locale_provider.dart';
 import '../../providers/log_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
-
-  String _getTitle(int count) {
-    if (count >= 50) return '暇人の神';
-    if (count >= 30) return '暇人の王';
-    if (count >= 15) return '中級暇人';
-    if (count >= 5) return '見習い暇人';
-    return '新米暇人';
-  }
 
   int _getLevel(int count) => (count / 5).floor() + 1;
 
@@ -27,10 +21,11 @@ class ProfileScreen extends ConsumerWidget {
     final unlockedCount = ref.watch(unlockedCountProvider);
     final totalAchievements = kVisibleAchievementCount;
 
+    final l10n = AppLocalizations.of(context);
     final totalMinutes = logs.fold(0, (sum, l) => sum + l.durationMinutes);
     final totalHours = totalMinutes ~/ 60;
     final level = _getLevel(unlockedCount);
-    final title = _getTitle(unlockedCount);
+    final title = l10n.profileTier(unlockedCount);
 
     // タグ別集計
     final tagCounts = <ActivityTag, int>{};
@@ -64,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('プロフィール')),
+      appBar: AppBar(title: Text(l10n.profileTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -73,20 +68,82 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _StatCard(label: '連続ログイン', value: '$streak日', icon: AppIconType.fire)),
+                Expanded(child: _StatCard(label: l10n.statStreak, value: l10n.streakValue(streak), icon: AppIconType.fire)),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(label: '総記録件数', value: '${logs.length}件', icon: AppIconType.clipboard)),
+                Expanded(child: _StatCard(label: l10n.statTotalLogs, value: l10n.logsValue(logs.length), icon: AppIconType.clipboard)),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(label: '総時間', value: '$totalHours時間', icon: AppIconType.clock)),
+                Expanded(child: _StatCard(label: l10n.statTotalTime, value: l10n.hoursValue(totalHours), icon: AppIconType.clock)),
               ],
             ),
             const SizedBox(height: 16),
             if (topTags.isNotEmpty)
               _TopTagsCard(topTags: topTags.take(5).toList()),
             const SizedBox(height: 16),
+            const _LanguageCard(),
+            const SizedBox(height: 16),
             const _AboutCard(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Language selector: follow the device, or force Japanese / English. Writes
+/// through [localeControllerProvider], which persists the choice.
+class _LanguageCard extends ConsumerWidget {
+  const _LanguageCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final current = ref.watch(localeControllerProvider);
+    // null = follow system.
+    final selected = current?.languageCode ?? 'system';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(color: AppColors.cardShadow, blurRadius: 4)
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const AppIcon(AppIconType.globe, size: 20, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Text(
+                l10n.languageSettingTitle,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<String>(
+            segments: [
+              ButtonSegment(value: 'system', label: Text(l10n.languageSystem)),
+              ButtonSegment(value: 'en', label: Text(l10n.languageEnglish)),
+              ButtonSegment(value: 'ja', label: Text(l10n.languageJapanese)),
+            ],
+            selected: {selected},
+            showSelectedIcon: false,
+            onSelectionChanged: (selection) {
+              final value = selection.first;
+              final controller = ref.read(localeControllerProvider.notifier);
+              controller.setLocale(value == 'system' ? null : Locale(value));
+            },
+          ),
+        ],
       ),
     );
   }
@@ -97,6 +154,7 @@ class _AboutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -110,9 +168,9 @@ class _AboutCard extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         leading: const AppIcon(AppIconType.openBook, size: 22, color: AppColors.textSecondary),
-        title: const Text(
-          'オープンソースライセンス',
-          style: TextStyle(
+        title: Text(
+          l10n.aboutLicenses,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
@@ -122,7 +180,7 @@ class _AboutCard extends StatelessWidget {
         onTap: () {
           showLicensePage(
             context: context,
-            applicationName: 'ヒマジン',
+            applicationName: l10n.appTitle,
           );
         },
       ),
@@ -145,6 +203,7 @@ class _LevelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -195,7 +254,7 @@ class _LevelCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            '実績 $unlockedCount / $total',
+            l10n.achievementsHeader(unlockedCount, total),
             style: TextStyle(
               fontSize: 12,
               color: AppColors.onPrimary.withValues(alpha: 0.9),
@@ -259,6 +318,8 @@ class _TopTagsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxCount = topTags.first.value;
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -272,9 +333,9 @@ class _TopTagsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'よくやること TOP5',
-            style: TextStyle(
+          Text(
+            l10n.topTagsTitle,
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
@@ -292,7 +353,7 @@ class _TopTagsCard extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     child: Text(
-                      entry.key.label,
+                      entry.key.labelFor(locale),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textPrimary,
