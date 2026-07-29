@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/achievements/achievements_screen.dart';
 import '../../presentation/screens/detail/achievement_detail_screen.dart';
+import '../../presentation/screens/paywall/paywall_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/widgets/himajin_scaffold.dart';
 
@@ -31,6 +32,10 @@ final appRouter = GoRouter(
         final id = state.pathParameters['id']!;
         return AchievementDetailScreen(achievementId: id);
       },
+    ),
+    GoRoute(
+      path: '/paywall',
+      builder: (context, state) => const PaywallScreen(),
     ),
   ],
 );

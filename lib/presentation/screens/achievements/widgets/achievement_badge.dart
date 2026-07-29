@@ -12,11 +12,15 @@ class AchievementBadge extends StatelessWidget {
     required this.achievement,
     required this.unlockedAt,
     required this.onTap,
+    this.isProLocked = false,
   });
 
   final Achievement achievement;
   final DateTime? unlockedAt;
   final VoidCallback onTap;
+
+  /// Pro 限定実績かつ Pro 未加入で解除できない状態。
+  final bool isProLocked;
 
   bool get isUnlocked => unlockedAt != null;
   bool get isHiddenLocked => achievement.isHidden && !isUnlocked;
@@ -48,7 +52,27 @@ class AchievementBadge extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isHiddenLocked)
+            if (isProLocked)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  AppIcon(
+                    achievement.icon,
+                    size: 30,
+                    color: AppColors.textSecondary.withValues(alpha: 0.4),
+                  ),
+                  const Positioned(
+                    right: -2,
+                    bottom: -2,
+                    child: AppIcon(
+                      AppIconType.crown,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              )
+            else if (isHiddenLocked)
               AppIcon(
                 AppIconType.lock,
                 size: 30,

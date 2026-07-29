@@ -3,6 +3,7 @@ import '../../core/constants/achievements_data.dart';
 import '../../data/repositories/achievement_repository.dart';
 import '../../domain/entities/achievement.dart';
 import 'log_providers.dart';
+import 'purchase_providers.dart';
 
 final achievementRepositoryProvider =
     Provider<AchievementRepository>((ref) => AchievementRepository());
@@ -20,12 +21,15 @@ class UnlockedAchievementsNotifier
   Future<List<Achievement>> checkAndUnlock() async {
     final repo = ref.read(achievementRepositoryProvider);
     final logs = ref.read(logNotifierProvider).valueOrNull ?? [];
+    final isPro = ref.read(isProProvider);
     final now = DateTime.now();
     final current = state.value ?? {};
     final newlyUnlocked = <Achievement>[];
 
     for (final achievement in kAllAchievements) {
       if (current.containsKey(achievement.id)) continue;
+      // Pro 限定実績は Pro 加入者のみ解除できる。
+      if (achievement.isPro && !isPro) continue;
       if (achievement.condition.evaluate(logs, now)) {
         final unlocked = await repo.unlock(achievement.id);
         current[achievement.id] = unlocked;

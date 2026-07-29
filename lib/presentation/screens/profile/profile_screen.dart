@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../domain/enums/activity_tag.dart';
 import '../../providers/achievement_providers.dart';
 import '../../providers/log_providers.dart';
+import '../../providers/purchase_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
 
@@ -25,6 +27,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(logNotifierProvider).valueOrNull ?? [];
     final unlockedCount = ref.watch(unlockedCountProvider);
+    final isPro = ref.watch(isProProvider);
     final totalAchievements = kVisibleAchievementCount;
 
     final totalMinutes = logs.fold(0, (sum, l) => sum + l.durationMinutes);
@@ -84,7 +87,113 @@ class ProfileScreen extends ConsumerWidget {
             if (topTags.isNotEmpty)
               _TopTagsCard(topTags: topTags.take(5).toList()),
             const SizedBox(height: 16),
+            _ProCard(isPro: isPro),
+            const SizedBox(height: 16),
             const _AboutCard(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProCard extends StatelessWidget {
+  const _ProCard({required this.isPro});
+
+  final bool isPro;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isPro) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+          boxShadow: const [
+            BoxShadow(color: AppColors.cardShadow, blurRadius: 4)
+          ],
+        ),
+        child: Row(
+          children: [
+            const AppIcon(AppIconType.crown, size: 28, color: AppColors.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'ヒマジンPro 加入中',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    'Pro限定実績 $kProAchievementCount 種が解放されています',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () => context.push('/paywall'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.primary, AppColors.accent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const AppIcon(AppIconType.crown, size: 28, color: AppColors.onPrimary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'ヒマジンPro',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.onPrimary,
+                    ),
+                  ),
+                  Text(
+                    'Pro限定実績 $kProAchievementCount 種を解放しよう',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onPrimary.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.onPrimary),
           ],
         ),
       ),

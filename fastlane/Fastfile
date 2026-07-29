@@ -1,0 +1,96 @@
+# ヒマジン — App Store Connect API を用いたビルド配信レーン。
+#
+# 認証は Apple ID ではなく App Store Connect API キー（.p8）で行う。
+# 必要な環境変数（.env 参照）:
+#   ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_PATH（または ASC_KEY_CONTENT_BASE64）
+#
+# 使い方:
+#   bundle exec fastlane ios verify_api   # API キーの疎通確認
+#   bundle exec fastlane ios beta         # TestFlight へアップロード
+#   bundle exec fastlane ios release      # App Store 審査提出用にアップロード
+
+# .env を読み込む（dotenv は fastlane に同梱）。
+require "dotenv"
+Dotenv.load(File.expand_path("../.env", __dir__))
+
+default_platform(:ios)
+
+# App Store Connect API キーを生成する共通ヘルパー。
+def asc_api_key
+  key_content_b64 = ENV["ASC_KEY_CONTENT_BASE64"]
+  key_filepath = ENV["ASC_KEY_PATH"]
+
+  params = {
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    in_house: false,
+  }
+
+  if key_content_b64 && !key_content_b64.empty?
+    params[:key_content] = key_content_b64
+    params[:is_key_content_base64] = true
+  elsif key_filepath && File.exist?(File.expand_path("../#{key_filepath}", __dir__))
+    params[:filepath] = File.expand_path("../#{key_filepath}", __dir__)
+  else
+    UI.user_error!("App Store Connect API キーが見つかりません。ASC_KEY_PATH か ASC_KEY_CONTENT_BASE64 を設定してください。")
+  end
+
+  app_store_connect_api_key(**params)
+end
+
+platform :ios do
+  desc "App Store Connect API キーの疎通を確認する"
+  lane :verify_api do
+    key = asc_api_key
+    build_number = latest_testflight_build_number(
+      api_key: key,
+      app_identifier: ENV["APP_BUNDLE_ID"] || "com.himajin.himaJin",
+    )
+    UI.success("API 疎通 OK。最新 TestFlight ビルド番号: #{build_number}")
+  end
+
+  desc "Flutter アプリをビルドして TestFlight にアップロードする"
+  lane :beta do
+    key = asc_api_key
+
+    # RevenueCat の Public SDK Key をビルド時に注入する。
+    dart_defines = [
+      "REVENUECAT_IOS_API_KEY=#{ENV['REVENUECAT_IOS_API_KEY']}",
+    ].map { |d| "--dart-define=#{d}" }.join(" ")
+
+    sh("cd .. && flutter build ipa --release --export-method app-store #{dart_defines}")
+
+    ipa_path = Dir[File.expand_path("../build/ios/ipa/*.ipa", __dir__)].first
+    UI.user_error!("IPA が見つかりません。flutter build ipa の出力を確認してください。") unless ipa_path
+
+    upload_to_testflight(
+      api_key: key,
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+    )
+  end
+
+  desc "App Store 審査提出用にビルドをアップロードする"
+  lane :release do
+    key = asc_api_key
+
+    dart_defines = [
+      "REVENUECAT_IOS_API_KEY=#{ENV['REVENUECAT_IOS_API_KEY']}",
+    ].map { |d| "--dart-define=#{d}" }.join(" ")
+
+    sh("cd .. && flutter build ipa --release --export-method app-store #{dart_defines}")
+
+    ipa_path = Dir[File.expand_path("../build/ios/ipa/*.ipa", __dir__)].first
+    UI.user_error!("IPA が見つかりません。") unless ipa_path
+
+    upload_to_app_store(
+      api_key: key,
+      ipa: ipa_path,
+      submit_for_review: false,
+      automatic_release: false,
+      force: true,
+      skip_screenshots: true,
+      precheck_include_in_app_purchases: true,
+    )
+  end
+end

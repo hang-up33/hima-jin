@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart'; // ignore: unused_import
 import '../../../core/constants/achievements_data.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../providers/achievement_providers.dart';
+import '../../providers/purchase_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
 import '../../widgets/rarity_badge.dart';
@@ -20,6 +22,8 @@ class AchievementDetailScreen extends ConsumerWidget {
     final unlockedMap = ref.watch(unlockedAchievementsProvider).valueOrNull;
     final unlocked = unlockedMap?[achievementId];
     final isUnlocked = unlocked != null;
+    final isPro = ref.watch(isProProvider);
+    final isProLocked = achievement.isPro && !isPro && !isUnlocked;
     final progress = ref.watch(achievementProgressProvider(achievementId));
     final rarityColor = AppColors.rarityColor(achievement.rarity);
 
@@ -107,6 +111,35 @@ class AchievementDetailScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                         color: rarityColor,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (isProLocked) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                ),
+                child: Column(
+                  children: [
+                    const AppIcon(AppIconType.crown, size: 32, color: AppColors.primary),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'ヒマジンPro限定の実績です',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: () => context.push('/paywall'),
+                      child: const Text('Proで解放する'),
                     ),
                   ],
                 ),
