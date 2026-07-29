@@ -1,0 +1,54 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ / VS Code
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+flutter_*.png
+linked_*.ds
+unlinked.ds
+unlinked_spec.ds
+
+# Symbolication / Obfuscation
+app.*.symbols
+app.*.map.json
+
+# ================= Secrets / credentials =================
+# App Store Connect API key (never commit .p8 private keys)
+*.p8
+AuthKey_*.p8
+# RevenueCat / ASC 環境変数
+.env
+.env.*
+!.env.example
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output/
+fastlane/*.mobileprovision
+*.cer
+*.certSigningRequest
+*.mobileprovision

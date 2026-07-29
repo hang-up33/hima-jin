@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../domain/entities/achievement.dart';
 import '../../../domain/enums/achievement_rarity.dart';
 import '../../providers/achievement_providers.dart';
+import '../../providers/purchase_providers.dart';
 import '../../widgets/icons/app_icon.dart';
 import '../../widgets/icons/app_icon_type.dart';
 import 'widgets/achievement_badge.dart';
@@ -17,6 +18,7 @@ class AchievementsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final enriched = ref.watch(enrichedAchievementsProvider);
     final unlockedCount = ref.watch(unlockedCountProvider);
+    final isPro = ref.watch(isProProvider);
     final total = kVisibleAchievementCount;
 
     return DefaultTabController(
@@ -77,16 +79,24 @@ class AchievementsScreen extends ConsumerWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  _AchievementGrid(enriched: enriched, rarity: null),
                   _AchievementGrid(
-                      enriched: enriched, rarity: AchievementRarity.common),
-                  _AchievementGrid(
-                      enriched: enriched, rarity: AchievementRarity.uncommon),
-                  _AchievementGrid(
-                      enriched: enriched, rarity: AchievementRarity.rare),
+                      enriched: enriched, rarity: null, isPro: isPro),
                   _AchievementGrid(
                       enriched: enriched,
-                      rarity: AchievementRarity.legendary),
+                      rarity: AchievementRarity.common,
+                      isPro: isPro),
+                  _AchievementGrid(
+                      enriched: enriched,
+                      rarity: AchievementRarity.uncommon,
+                      isPro: isPro),
+                  _AchievementGrid(
+                      enriched: enriched,
+                      rarity: AchievementRarity.rare,
+                      isPro: isPro),
+                  _AchievementGrid(
+                      enriched: enriched,
+                      rarity: AchievementRarity.legendary,
+                      isPro: isPro),
                 ],
               ),
             ),
@@ -98,10 +108,15 @@ class AchievementsScreen extends ConsumerWidget {
 }
 
 class _AchievementGrid extends StatelessWidget {
-  const _AchievementGrid({required this.enriched, required this.rarity});
+  const _AchievementGrid({
+    required this.enriched,
+    required this.rarity,
+    required this.isPro,
+  });
 
   final List<({Achievement achievement, UnlockedAchievement? unlocked})> enriched;
   final AchievementRarity? rarity;
+  final bool isPro;
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +141,15 @@ class _AchievementGrid extends StatelessWidget {
       itemCount: filtered.length,
       itemBuilder: (context, index) {
         final item = filtered[index];
+        final isProLocked =
+            item.achievement.isPro && !isPro && item.unlocked == null;
         return AchievementBadge(
           achievement: item.achievement,
           unlockedAt: item.unlocked?.unlockedAt,
-          onTap: () => context.push('/achievement/${item.achievement.id}'),
+          isProLocked: isProLocked,
+          onTap: () => isProLocked
+              ? context.push('/paywall')
+              : context.push('/achievement/${item.achievement.id}'),
         );
       },
     );

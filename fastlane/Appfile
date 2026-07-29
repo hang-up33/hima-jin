@@ -1,0 +1,7 @@
+# App Store Connect / Apple Developer の識別子。
+# 値は環境変数（.env）から読み込み、ソースにハードコードしない。
+
+app_identifier(ENV["APP_BUNDLE_ID"] || "com.himajin.himaJin")
+apple_dev_portal_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]
+itunes_connect_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]
+team_id(ENV["DEVELOPER_TEAM_ID"] || "9QG7B94N3U")

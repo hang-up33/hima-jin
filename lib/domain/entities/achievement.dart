@@ -11,6 +11,7 @@ class Achievement {
     required this.rarity,
     required this.condition,
     this.isHidden = false,
+    this.isPro = false,
   });
 
   final String id;
@@ -20,6 +21,9 @@ class Achievement {
   final AchievementRarity rarity;
   final AchievementCondition condition;
   final bool isHidden;
+
+  /// ヒマジンPro（課金）限定の実績。未加入では解除できずロック表示となる。
+  final bool isPro;
 }
 
 class UnlockedAchievement {

@@ -634,7 +634,96 @@ final List<Achievement> kAllAchievements = [
     isHidden: true,
     condition: ConsecutiveDaysCondition(50),
   ),
+
+  // ========== PRO PACK（ヒマジンPro限定・★プレミアム実績） ==========
+  // isPro: true の実績は Pro 未加入では解除できず、ロック表示となる。
+  // Pro 加入後、既に条件を満たしていれば次回チェック時に解除される。
+  const Achievement(
+    id: 'pro_early_bird',
+    title: '【Pro】朝活マスター',
+    description: '早朝(5〜8時)に10回ログした',
+    icon: AppIconType.sunrise,
+    rarity: AchievementRarity.rare,
+    isPro: true,
+    condition: AndCondition([
+      TotalCountCondition(10),
+      TimeOfDayCondition(startHour: 5, endHour: 8),
+    ]),
+  ),
+  const Achievement(
+    id: 'pro_night_owl',
+    title: '【Pro】深夜の暇人',
+    description: '深夜(0〜4時)にログした',
+    icon: AppIconType.owl,
+    rarity: AchievementRarity.uncommon,
+    isPro: true,
+    condition: TimeOfDayCondition(startHour: 0, endHour: 4),
+  ),
+  const Achievement(
+    id: 'pro_variety_master',
+    title: '【Pro】多趣味な暇人',
+    description: '12種類以上のタグを使った',
+    icon: AppIconType.palette,
+    rarity: AchievementRarity.rare,
+    isPro: true,
+    condition: MinTagVarietyCondition(12),
+  ),
+  const Achievement(
+    id: 'pro_marathon',
+    title: '【Pro】暇人マラソン',
+    description: '合計200件のログを記録した',
+    icon: AppIconType.medal,
+    rarity: AchievementRarity.legendary,
+    isPro: true,
+    condition: TotalCountCondition(200),
+  ),
+  const Achievement(
+    id: 'pro_zen',
+    title: '【Pro】無の境地',
+    description: '「何もしない」を30回ログした',
+    icon: AppIconType.meditation,
+    rarity: AchievementRarity.rare,
+    isPro: true,
+    condition: TagCountCondition(ActivityTag.nothing, 30),
+  ),
+  const Achievement(
+    id: 'pro_perfect_week',
+    title: '【Pro】完璧な暇週間',
+    description: '1日に5種類以上のタグをログした',
+    icon: AppIconType.rainbow,
+    rarity: AchievementRarity.legendary,
+    isPro: true,
+    condition: SameDayCombinationCondition([
+      ActivityTag.nap,
+      ActivityTag.walk,
+      ActivityTag.tv,
+      ActivityTag.read,
+      ActivityTag.music,
+    ]),
+  ),
+  const Achievement(
+    id: 'pro_devoted',
+    title: '【Pro】暇人の鑑',
+    description: '100日連続でログを記録した',
+    icon: AppIconType.crown,
+    rarity: AchievementRarity.legendary,
+    isPro: true,
+    condition: ConsecutiveDaysCondition(100),
+  ),
+  const Achievement(
+    id: 'pro_supporter',
+    title: '【Pro】ヒマジンの応援団',
+    description: 'ヒマジンProに加入して開発を応援した',
+    icon: AppIconType.sparkles,
+    rarity: AchievementRarity.legendary,
+    isPro: true,
+    condition: FirstLogCondition(),
+  ),
 ];
 
 final int kVisibleAchievementCount =
     kAllAchievements.where((a) => !a.isHidden).length;
+
+/// Pro 限定実績の数。
+final int kProAchievementCount =
+    kAllAchievements.where((a) => a.isPro).length;

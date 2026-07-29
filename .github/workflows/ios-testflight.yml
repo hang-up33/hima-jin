@@ -1,0 +1,42 @@
+name: iOS TestFlight
+
+# 手動実行、または v* タグの push で TestFlight へ配信する。
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    name: Build & upload to TestFlight
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Ruby (fastlane)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build & upload via fastlane
+        run: bundle exec fastlane ios beta
+        env:
+          # App Store Connect API キー（Settings > Secrets に登録）
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          # .p8 を base64 化した文字列: base64 -i AuthKey_XXXX.p8
+          ASC_KEY_CONTENT_BASE64: ${{ secrets.ASC_KEY_CONTENT_BASE64 }}
+          # RevenueCat Public SDK Key（ビルド時に dart-define で注入）
+          REVENUECAT_IOS_API_KEY: ${{ secrets.REVENUECAT_IOS_API_KEY }}
+          APP_BUNDLE_ID: com.himajin.himaJin
+          DEVELOPER_TEAM_ID: ${{ secrets.DEVELOPER_TEAM_ID }}
