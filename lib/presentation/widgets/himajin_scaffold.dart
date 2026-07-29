@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 
 class HimaJinScaffold extends StatelessWidget {
   const HimaJinScaffold({super.key, required this.child});
@@ -7,13 +8,9 @@ class HimaJinScaffold extends StatelessWidget {
   final Widget child;
 
   static const _tabs = [
-    (asset: 'assets/images/nav_home.png', label: 'ホーム', path: '/home'),
-    (
-      asset: 'assets/images/nav_achievements.png',
-      label: '実績',
-      path: '/achievements'
-    ),
-    (asset: 'assets/images/nav_profile.png', label: 'プロフィール', path: '/profile'),
+    (asset: 'assets/images/nav_home.png', path: '/home'),
+    (asset: 'assets/images/nav_achievements.png', path: '/achievements'),
+    (asset: 'assets/images/nav_profile.png', path: '/profile'),
   ];
 
   int _currentIndex(BuildContext context) {
@@ -37,18 +34,21 @@ class HimaJinScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final index = _currentIndex(context);
+    final l10n = AppLocalizations.of(context);
+    final labels = [l10n.navHome, l10n.navAchievements, l10n.navProfile];
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: index,
         onTap: (i) => context.go(_tabs[i].path),
-        items: _tabs
-            .map((t) => BottomNavigationBarItem(
-                  icon: _icon(t.asset, active: false),
-                  activeIcon: _icon(t.asset, active: true),
-                  label: t.label,
-                ))
-            .toList(),
+        items: [
+          for (int i = 0; i < _tabs.length; i++)
+            BottomNavigationBarItem(
+              icon: _icon(_tabs[i].asset, active: false),
+              activeIcon: _icon(_tabs[i].asset, active: true),
+              label: labels[i],
+            ),
+        ],
       ),
     );
   }

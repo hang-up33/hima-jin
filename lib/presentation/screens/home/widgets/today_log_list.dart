@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../domain/entities/activity_log.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../providers/log_providers.dart';
 import '../../../widgets/icons/app_icon.dart';
 
@@ -44,12 +45,11 @@ class _LogTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
     final time = DateFormat('HH:mm').format(log.timestamp);
-    final duration = log.durationMinutes > 0
-        ? log.durationMinutes < 60
-            ? '${log.durationMinutes}分'
-            : '${log.durationMinutes ~/ 60}時間${log.durationMinutes % 60 == 0 ? '' : '${log.durationMinutes % 60}分'}'
-        : null;
+    final duration =
+        log.durationMinutes > 0 ? l10n.durationText(log.durationMinutes) : null;
 
     return Dismissible(
       key: Key(log.id),
@@ -95,7 +95,7 @@ class _LogTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          log.tag.label,
+                          log.tag.labelFor(locale),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

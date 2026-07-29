@@ -44,7 +44,7 @@ void main() {
   testWidgets('renders すべて and one tab per rarity', (tester) async {
     await _pumpAchievementsScreen(tester, FakeAchievementRepository());
 
-    expect(find.text('すべて'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
     for (final rarity in AchievementRarity.values) {
       expect(find.text(rarity.label), findsOneWidget);
     }
@@ -59,7 +59,7 @@ void main() {
     });
     await _pumpAchievementsScreen(tester, achRepo);
 
-    expect(find.text('実績 2 / $kVisibleAchievementCount'), findsOneWidget);
+    expect(find.text('Achievements 2 / $kVisibleAchievementCount'), findsOneWidget);
   });
 
   testWidgets(
@@ -68,12 +68,12 @@ void main() {
     await _pumpAchievementsScreen(tester, FakeAchievementRepository());
 
     // first_log is common-rarity and visible on the default 'すべて' tab.
-    expect(find.text('暇人への第一歩'), findsOneWidget);
+    expect(find.text('First Step to Idling'), findsOneWidget);
 
     await tester.tap(find.text(AchievementRarity.legendary.label));
     await tester.pumpAndSettle();
 
-    expect(find.text('暇人への第一歩'), findsNothing);
+    expect(find.text('First Step to Idling'), findsNothing);
   });
 
   testWidgets(
@@ -84,7 +84,7 @@ void main() {
     await tester.tap(find.byType(AchievementBadge).first);
     await tester.pumpAndSettle();
 
-    expect(find.text('実績詳細'), findsOneWidget);
-    expect(find.text('暇人への第一歩'), findsOneWidget);
+    expect(find.text('Achievement Details'), findsOneWidget);
+    expect(find.text('First Step to Idling'), findsOneWidget);
   });
 }

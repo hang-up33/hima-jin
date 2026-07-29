@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../domain/enums/activity_tag.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../widgets/icons/app_icon.dart';
 
 class LogEntrySheet extends StatefulWidget {
@@ -10,14 +11,17 @@ class LogEntrySheet extends StatefulWidget {
     required this.onSubmit,
     this.initialNote = '',
     this.initialDurationMinutes = 0,
-    this.submitLabel = '記録する',
+    this.submitLabel,
   });
 
   final ActivityTag tag;
   final Future<void> Function(String note, int durationMinutes) onSubmit;
   final String initialNote;
   final int initialDurationMinutes;
-  final String submitLabel;
+
+  /// Text for the submit button. When null, defaults to the localized
+  /// "log it" label.
+  final String? submitLabel;
 
   @override
   State<LogEntrySheet> createState() => _LogEntrySheetState();
@@ -28,14 +32,15 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
   late int _selectedMinutes = widget.initialDurationMinutes;
   bool _submitting = false;
 
+  /// Quick-pick durations in minutes. [plus] marks the "or more" option.
   static const _durationOptions = [
-    (label: '未設定', minutes: 0),
-    (label: '15分', minutes: 15),
-    (label: '30分', minutes: 30),
-    (label: '1時間', minutes: 60),
-    (label: '2時間', minutes: 120),
-    (label: '3時間', minutes: 180),
-    (label: '4時間+', minutes: 240),
+    (minutes: 0, plus: false),
+    (minutes: 15, plus: false),
+    (minutes: 30, plus: false),
+    (minutes: 60, plus: false),
+    (minutes: 120, plus: false),
+    (minutes: 180, plus: false),
+    (minutes: 240, plus: true),
   ];
 
   Future<void> _submit() async {
@@ -54,6 +59,8 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
     return Container(
       margin: const EdgeInsets.all(16),
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
@@ -81,7 +88,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
               AppIcon(widget.tag.icon, size: 32, color: AppColors.textPrimary),
               const SizedBox(width: 12),
               Text(
-                widget.tag.label,
+                widget.tag.labelFor(locale),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -91,9 +98,9 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'どのくらい？',
-            style: TextStyle(
+          Text(
+            l10n.durationPrompt,
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppColors.textSecondary,
@@ -120,7 +127,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
                     ),
                   ),
                   child: Text(
-                    opt.label,
+                    l10n.durationChip(opt.minutes, plus: opt.plus),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
@@ -135,7 +142,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
           TextField(
             controller: _noteController,
             decoration: InputDecoration(
-              hintText: 'メモ（任意）',
+              hintText: l10n.noteHint,
               hintStyle:
                   TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.6)),
               filled: true,
@@ -156,7 +163,7 @@ class _LogEntrySheetState extends State<LogEntrySheet> {
               key: const Key('log_submit_button'),
               onPressed: _submitting ? null : _submit,
               child: Text(
-                widget.submitLabel,
+                widget.submitLabel ?? l10n.logButton,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),

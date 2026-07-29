@@ -68,7 +68,9 @@ class AchievementBadge extends StatelessWidget {
               ),
             const SizedBox(height: 6),
             Text(
-              isHiddenLocked ? '???' : achievement.title,
+              isHiddenLocked
+                  ? '???'
+                  : achievement.titleFor(Localizations.localeOf(context)),
               style: TextStyle(
                 fontSize: 10,
                 fontWeight:

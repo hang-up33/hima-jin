@@ -58,9 +58,9 @@ void main() {
         _wrap(FakeLogRepository(), FakeAchievementRepository()));
     await tester.pumpAndSettle();
 
-    expect(find.text('ヒマジン'), findsOneWidget);
+    expect(find.text('Himajin'), findsOneWidget);
     for (final tag in ActivityTag.values) {
-      expect(find.text(tag.label), findsOneWidget);
+      expect(find.text(tag.labelEn), findsOneWidget);
     }
     expect(find.text('0 / $kVisibleAchievementCount'), findsOneWidget);
   });
@@ -71,11 +71,11 @@ void main() {
         _wrap(FakeLogRepository(), FakeAchievementRepository()));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(ActivityTag.nap.label));
+    await tester.tap(find.text(ActivityTag.nap.labelEn));
     await tester.pumpAndSettle();
 
     expect(find.byType(LogEntrySheet), findsOneWidget);
-    expect(find.text('どのくらい？'), findsOneWidget);
+    expect(find.text('How long?'), findsOneWidget);
   });
 
   testWidgets(
@@ -92,14 +92,14 @@ void main() {
     await tester.pumpWidget(_wrap(FakeLogRepository(), achRepo));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(ActivityTag.other.label));
+    await tester.tap(find.text(ActivityTag.other.labelEn));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'メモ入力テスト');
     await tester.tap(find.byKey(const Key('log_submit_button')));
     await tester.pumpAndSettle();
 
-    expect(find.text(ActivityTag.other.label), findsNWidgets(2));
+    expect(find.text(ActivityTag.other.labelEn), findsNWidgets(2));
     expect(find.text('メモ入力テスト'), findsOneWidget);
     expect(
       find.text('${_timeOfDayAchievementIds.length} / $kVisibleAchievementCount'),
@@ -138,7 +138,7 @@ void main() {
 
     // The edit sheet opens pre-filled with the existing note and an update label.
     expect(find.byType(LogEntrySheet), findsOneWidget);
-    expect(find.text('更新する'), findsOneWidget);
+    expect(find.text('Update'), findsOneWidget);
     expect(find.widgetWithText(TextField, '編集前メモ'), findsOneWidget);
 
     // Rewrite the note and submit.
@@ -152,7 +152,7 @@ void main() {
     // Editing only the note preserves the tag and duration through the UI
     // round-trip: the tile still shows the nap label (once in the tag grid,
     // once in the tile) and its original 15-minute duration.
-    expect(find.text(ActivityTag.nap.label), findsNWidgets(2));
-    expect(find.text('15分'), findsOneWidget);
+    expect(find.text(ActivityTag.nap.labelEn), findsNWidgets(2));
+    expect(find.text('15m'), findsOneWidget);
   });
 }
