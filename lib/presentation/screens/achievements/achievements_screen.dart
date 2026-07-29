@@ -18,7 +18,7 @@ class AchievementsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final enriched = ref.watch(enrichedAchievementsProvider);
     final unlockedCount = ref.watch(unlockedCountProvider);
-    final isPro = ref.watch(isProProvider);
+    final isPro = ref.watch(isProProvider).valueOrNull ?? false;
     final total = kVisibleAchievementCount;
 
     return DefaultTabController(
@@ -71,7 +71,8 @@ class AchievementsScreen extends ConsumerWidget {
                 child: LinearProgressIndicator(
                   value: total > 0 ? unlockedCount / total : 0,
                   minHeight: 6,
-                  backgroundColor: AppColors.textSecondary.withValues(alpha: 0.15),
+                  backgroundColor:
+                      AppColors.textSecondary.withValues(alpha: 0.15),
                   color: AppColors.primary,
                 ),
               ),
@@ -114,7 +115,8 @@ class _AchievementGrid extends StatelessWidget {
     required this.isPro,
   });
 
-  final List<({Achievement achievement, UnlockedAchievement? unlocked})> enriched;
+  final List<({Achievement achievement, UnlockedAchievement? unlocked})>
+      enriched;
   final AchievementRarity? rarity;
   final bool isPro;
 
@@ -126,7 +128,8 @@ class _AchievementGrid extends StatelessWidget {
 
     if (filtered.isEmpty) {
       return const Center(
-        child: Text('まだ実績がありません', style: TextStyle(color: AppColors.textSecondary)),
+        child: Text('まだ実績がありません',
+            style: TextStyle(color: AppColors.textSecondary)),
       );
     }
 

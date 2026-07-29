@@ -18,11 +18,12 @@ class AchievementDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final achievement = kAllAchievements.firstWhere((a) => a.id == achievementId);
+    final achievement =
+        kAllAchievements.firstWhere((a) => a.id == achievementId);
     final unlockedMap = ref.watch(unlockedAchievementsProvider).valueOrNull;
     final unlocked = unlockedMap?[achievementId];
     final isUnlocked = unlocked != null;
-    final isPro = ref.watch(isProProvider);
+    final isPro = ref.watch(isProProvider).valueOrNull ?? false;
     final isProLocked = achievement.isPro && !isPro && !isUnlocked;
     final progress = ref.watch(achievementProgressProvider(achievementId));
     final rarityColor = AppColors.rarityColor(achievement.rarity);
@@ -54,18 +55,20 @@ class AchievementDetailScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: rarityColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: rarityColor),
               ),
-              child: RarityBadge(rarity: achievement.rarity, color: rarityColor),
+              child:
+                  RarityBadge(rarity: achievement.rarity, color: rarityColor),
             ),
             const SizedBox(height: 16),
             Text(
-              isUnlocked ? achievement.title : (achievement.isHidden ? '???' : achievement.title),
+              isUnlocked
+                  ? achievement.title
+                  : (achievement.isHidden ? '???' : achievement.title),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
@@ -77,7 +80,9 @@ class AchievementDetailScreen extends ConsumerWidget {
             Text(
               isUnlocked
                   ? achievement.description
-                  : (achievement.isHidden ? '解除するまで謎のまま...' : achievement.description),
+                  : (achievement.isHidden
+                      ? '解除するまで謎のまま...'
+                      : achievement.description),
               style: const TextStyle(
                 fontSize: 15,
                 color: AppColors.textSecondary,
@@ -122,11 +127,13 @@ class AchievementDetailScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                  border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.4)),
                 ),
                 child: Column(
                   children: [
-                    const AppIcon(AppIconType.crown, size: 32, color: AppColors.primary),
+                    const AppIcon(AppIconType.crown,
+                        size: 32, color: AppColors.primary),
                     const SizedBox(height: 8),
                     const Text(
                       'ヒマジンPro限定の実績です',

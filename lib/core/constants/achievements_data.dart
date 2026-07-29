@@ -645,10 +645,7 @@ final List<Achievement> kAllAchievements = [
     icon: AppIconType.sunrise,
     rarity: AchievementRarity.rare,
     isPro: true,
-    condition: AndCondition([
-      TotalCountCondition(10),
-      TimeOfDayCondition(startHour: 5, endHour: 8),
-    ]),
+    condition: TimeOfDayCountCondition(startHour: 5, endHour: 8, count: 10),
   ),
   const Achievement(
     id: 'pro_night_owl',
@@ -693,13 +690,7 @@ final List<Achievement> kAllAchievements = [
     icon: AppIconType.rainbow,
     rarity: AchievementRarity.legendary,
     isPro: true,
-    condition: SameDayCombinationCondition([
-      ActivityTag.nap,
-      ActivityTag.walk,
-      ActivityTag.tv,
-      ActivityTag.read,
-      ActivityTag.music,
-    ]),
+    condition: SameDayMinTagVarietyCondition(5),
   ),
   const Achievement(
     id: 'pro_devoted',
@@ -717,7 +708,7 @@ final List<Achievement> kAllAchievements = [
     icon: AppIconType.sparkles,
     rarity: AchievementRarity.legendary,
     isPro: true,
-    condition: FirstLogCondition(),
+    condition: AlwaysCondition(),
   ),
 ];
 
@@ -725,5 +716,4 @@ final int kVisibleAchievementCount =
     kAllAchievements.where((a) => !a.isHidden).length;
 
 /// Pro 限定実績の数。
-final int kProAchievementCount =
-    kAllAchievements.where((a) => a.isPro).length;
+final int kProAchievementCount = kAllAchievements.where((a) => a.isPro).length;

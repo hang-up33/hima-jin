@@ -65,8 +65,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     try {
       final repo = ref.read(purchaseRepositoryProvider);
       final info = await repo.purchase(package);
-      await _onEntitlementUpdated(PurchaseRepository.isProActive(info),
-          success: 'ヒマジンProへようこそ！🎉');
+      await _onEntitlementUpdated(
+        PurchaseRepository.isProActive(info),
+        success: 'ヒマジンProへようこそ！🎉',
+        failure: '購入処理は完了しましたが、Pro状態の反映を確認できませんでした。少し待って再度お試しください。',
+      );
     } on PlatformException catch (e) {
       final code = PurchasesErrorHelper.getErrorCode(e);
       if (code == PurchasesErrorCode.purchaseCancelledError) {
@@ -126,7 +129,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isPro = ref.watch(isProProvider);
+    final isPro = ref.watch(isProProvider).valueOrNull ?? false;
     final repoAvailable = ref.read(purchaseRepositoryProvider).isAvailable;
 
     return Scaffold(
@@ -192,9 +195,8 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           child: _PackageTile(
             package: package,
             selected: selected,
-            onTap: _purchasing
-                ? null
-                : () => setState(() => _selected = package),
+            onTap:
+                _purchasing ? null : () => setState(() => _selected = package),
           ),
         );
       }),
@@ -253,7 +255,8 @@ class _ProHeader extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const AppIcon(AppIconType.crown, size: 48, color: AppColors.onPrimary),
+          const AppIcon(AppIconType.crown,
+              size: 48, color: AppColors.onPrimary),
           const SizedBox(height: 12),
           const Text(
             'ヒマジンPro',
@@ -289,7 +292,9 @@ class _BenefitsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: AppColors.cardShadow, blurRadius: 4)],
+        boxShadow: const [
+          BoxShadow(color: AppColors.cardShadow, blurRadius: 4)
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,7 +428,9 @@ class _StatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: AppColors.cardShadow, blurRadius: 4)],
+        boxShadow: const [
+          BoxShadow(color: AppColors.cardShadow, blurRadius: 4)
+        ],
       ),
       child: Row(
         children: [
@@ -453,7 +460,8 @@ class _LegalFooter extends StatelessWidget {
       '購入は App ID に紐づく Apple アカウントに請求されます。'
       'サブスクリプションは期間終了の24時間以上前に解約しない限り自動更新されます。'
       '購入後は App Store の設定から管理・解約できます。',
-      style: TextStyle(fontSize: 10, color: AppColors.textSecondary, height: 1.5),
+      style:
+          TextStyle(fontSize: 10, color: AppColors.textSecondary, height: 1.5),
       textAlign: TextAlign.center,
     );
   }

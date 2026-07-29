@@ -15,6 +15,21 @@ class PurchaseRepository {
   /// RevenueCat が初期化済みで課金機能を利用できるか。
   bool get isAvailable => _available;
 
+  CustomerInfo get _defaultCustomerInfo {
+    final now = DateTime.now().toIso8601String();
+    return CustomerInfo(
+      const EntitlementInfos({}, {}),
+      const {},
+      const [],
+      const [],
+      const [],
+      now,
+      '',
+      const {},
+      now,
+    );
+  }
+
   /// アプリ起動時に一度だけ呼び出して SDK を初期化する。
   Future<void> init() async {
     if (!RevenueCatConfig.isConfigured) return;
@@ -61,11 +76,13 @@ class PurchaseRepository {
   /// ユーザーがキャンセルした場合など、失敗時は例外を送出する。呼び出し側は
   /// [PurchasesErrorHelper.getErrorCode] でハンドリングすること。
   Future<CustomerInfo> purchase(Package package) {
+    if (!_available) return Future.value(_defaultCustomerInfo);
     return Purchases.purchasePackage(package);
   }
 
   /// 過去の購入を復元し、更新後の顧客情報を返す。
   Future<CustomerInfo> restore() {
+    if (!_available) return Future.value(_defaultCustomerInfo);
     return Purchases.restorePurchases();
   }
 

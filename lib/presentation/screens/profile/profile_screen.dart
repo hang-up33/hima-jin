@@ -27,7 +27,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logs = ref.watch(logNotifierProvider).valueOrNull ?? [];
     final unlockedCount = ref.watch(unlockedCountProvider);
-    final isPro = ref.watch(isProProvider);
+    final isPro = ref.watch(isProProvider).valueOrNull ?? false;
     final totalAchievements = kVisibleAchievementCount;
 
     final totalMinutes = logs.fold(0, (sum, l) => sum + l.durationMinutes);
@@ -47,14 +47,15 @@ class ProfileScreen extends ConsumerWidget {
     int streak = 0;
     if (logs.isNotEmpty) {
       final days = logs
-          .map((l) => DateTime(
-              l.timestamp.year, l.timestamp.month, l.timestamp.day))
+          .map((l) =>
+              DateTime(l.timestamp.year, l.timestamp.month, l.timestamp.day))
           .toSet()
           .toList()
         ..sort();
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
-      if (days.last == today || days.last == today.subtract(const Duration(days: 1))) {
+      if (days.last == today ||
+          days.last == today.subtract(const Duration(days: 1))) {
         streak = 1;
         for (int i = days.length - 1; i > 0; i--) {
           if (days[i].difference(days[i - 1]).inDays == 1) {
@@ -72,15 +73,31 @@ class ProfileScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            _LevelCard(level: level, title: title, unlockedCount: unlockedCount, total: totalAchievements),
+            _LevelCard(
+                level: level,
+                title: title,
+                unlockedCount: unlockedCount,
+                total: totalAchievements),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _StatCard(label: '連続ログイン', value: '$streak日', icon: AppIconType.fire)),
+                Expanded(
+                    child: _StatCard(
+                        label: '連続ログイン',
+                        value: '$streak日',
+                        icon: AppIconType.fire)),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(label: '総記録件数', value: '${logs.length}件', icon: AppIconType.clipboard)),
+                Expanded(
+                    child: _StatCard(
+                        label: '総記録件数',
+                        value: '${logs.length}件',
+                        icon: AppIconType.clipboard)),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(label: '総時間', value: '$totalHours時間', icon: AppIconType.clock)),
+                Expanded(
+                    child: _StatCard(
+                        label: '総時間',
+                        value: '$totalHours時間',
+                        icon: AppIconType.clock)),
               ],
             ),
             const SizedBox(height: 16),
@@ -118,7 +135,8 @@ class _ProCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const AppIcon(AppIconType.crown, size: 28, color: AppColors.primary),
+            const AppIcon(AppIconType.crown,
+                size: 28, color: AppColors.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -169,7 +187,8 @@ class _ProCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const AppIcon(AppIconType.crown, size: 28, color: AppColors.onPrimary),
+            const AppIcon(AppIconType.crown,
+                size: 28, color: AppColors.onPrimary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -218,7 +237,8 @@ class _AboutCard extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        leading: const AppIcon(AppIconType.openBook, size: 22, color: AppColors.textSecondary),
+        leading: const AppIcon(AppIconType.openBook,
+            size: 22, color: AppColors.textSecondary),
         title: const Text(
           'オープンソースライセンス',
           style: TextStyle(
@@ -227,7 +247,8 @@ class _AboutCard extends StatelessWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+        trailing:
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
         onTap: () {
           showLicensePage(
             context: context,
@@ -274,7 +295,8 @@ class _LevelCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const AppIcon(AppIconType.trophy, size: 48, color: AppColors.onPrimary),
+          const AppIcon(AppIconType.trophy,
+              size: 48, color: AppColors.onPrimary),
           const SizedBox(height: 8),
           Text(
             title,
@@ -317,7 +339,8 @@ class _LevelCard extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value, required this.icon});
+  const _StatCard(
+      {required this.label, required this.value, required this.icon});
 
   final String label;
   final String value;
@@ -396,7 +419,8 @@ class _TopTagsCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
-                  AppIcon(entry.key.icon, size: 18, color: AppColors.textPrimary),
+                  AppIcon(entry.key.icon,
+                      size: 18, color: AppColors.textPrimary),
                   const SizedBox(width: 8),
                   SizedBox(
                     width: 60,

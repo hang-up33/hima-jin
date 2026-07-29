@@ -25,7 +25,7 @@ ProviderContainer _makeContainer({
       logRepositoryProvider.overrideWithValue(FakeLogRepository(logs)),
       achievementRepositoryProvider
           .overrideWithValue(FakeAchievementRepository()),
-      isProProvider.overrideWithValue(isPro),
+      isProProvider.overrideWithValue(AsyncData(isPro)),
     ],
   );
   addTearDown(container.dispose);
@@ -59,6 +59,17 @@ void main() {
 
       expect(unlocked.any((a) => a.id == 'pro_night_owl'), isTrue);
       // pro_supporter は加入した時点で解除される感謝の実績。
+      expect(unlocked.any((a) => a.id == 'pro_supporter'), isTrue);
+    });
+
+    test('Pro 加入時はログがなくても pro_supporter が解除される', () async {
+      final container = _makeContainer(isPro: true, logs: []);
+      await container.read(logNotifierProvider.future);
+
+      final unlocked = await container
+          .read(unlockedAchievementsProvider.notifier)
+          .checkAndUnlock();
+
       expect(unlocked.any((a) => a.id == 'pro_supporter'), isTrue);
     });
   });

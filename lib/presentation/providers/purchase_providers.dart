@@ -36,8 +36,9 @@ final customerInfoProvider =
   CustomerInfoNotifier.new,
 );
 
-/// Pro Entitlement が有効かどうか。UI とゲート判定はこれを参照する。
-final isProProvider = Provider<bool>((ref) {
-  final info = ref.watch(customerInfoProvider).valueOrNull;
-  return PurchaseRepository.isProActive(info);
+/// Pro Entitlement が有効かどうか。読み込み中は [AsyncLoading] のまま扱う。
+final isProProvider = Provider<AsyncValue<bool>>((ref) {
+  return ref
+      .watch(customerInfoProvider)
+      .whenData(PurchaseRepository.isProActive);
 });

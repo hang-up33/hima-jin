@@ -29,7 +29,7 @@ fi
 TOKEN="$(python3 "$ROOT_DIR/scripts/asc_token.py")"
 
 _get() {
-  curl -sS -H "Authorization: Bearer $TOKEN" "$API$1"
+  curl -sS --fail-with-body -H "Authorization: Bearer $TOKEN" "$API$1"
 }
 
 cmd="${1:-}"

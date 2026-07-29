@@ -20,6 +20,17 @@ sealed class AchievementCondition {
   double progress(List<ActivityLog> logs, DateTime now);
 }
 
+/// 常に達成済み
+class AlwaysCondition extends AchievementCondition {
+  const AlwaysCondition();
+
+  @override
+  bool evaluate(List<ActivityLog> logs, DateTime now) => true;
+
+  @override
+  double progress(List<ActivityLog> logs, DateTime now) => 1.0;
+}
+
 /// 初回ログ
 class FirstLogCondition extends AchievementCondition {
   const FirstLogCondition();
@@ -109,9 +120,8 @@ class SingleSessionDurationCondition extends AchievementCondition {
 
   @override
   double progress(List<ActivityLog> logs, DateTime now) {
-    final best = logs
-        .where((l) => l.tag == tag)
-        .fold(0, (best, l) => l.durationMinutes > best ? l.durationMinutes : best);
+    final best = logs.where((l) => l.tag == tag).fold(
+        0, (best, l) => l.durationMinutes > best ? l.durationMinutes : best);
     return (best / minutes).clamp(0.0, 1.0);
   }
 }
@@ -125,8 +135,8 @@ class SameDayTagCountCondition extends AchievementCondition {
   @override
   bool evaluate(List<ActivityLog> logs, DateTime now) {
     return _groupByDay(logs).values.any(
-      (dayLogs) => dayLogs.where((l) => l.tag == tag).length >= count,
-    );
+          (dayLogs) => dayLogs.where((l) => l.tag == tag).length >= count,
+        );
   }
 
   @override
@@ -193,6 +203,30 @@ class TimeOfDayCondition extends AchievementCondition {
       evaluate(logs, now) ? 1.0 : 0.0;
 }
 
+/// 特定時間帯にX回ログ
+class TimeOfDayCountCondition extends AchievementCondition {
+  const TimeOfDayCountCondition({
+    required this.startHour,
+    required this.endHour,
+    required this.count,
+  });
+
+  final int startHour;
+  final int endHour;
+  final int count;
+
+  bool _isInRange(ActivityLog log) =>
+      log.timestamp.hour >= startHour && log.timestamp.hour < endHour;
+
+  @override
+  bool evaluate(List<ActivityLog> logs, DateTime now) =>
+      logs.where(_isInRange).length >= count;
+
+  @override
+  double progress(List<ActivityLog> logs, DateTime now) =>
+      (logs.where(_isInRange).length / count).clamp(0.0, 1.0);
+}
+
 /// 全タグを1回以上ログ
 class AllTagsCondition extends AchievementCondition {
   const AllTagsCondition();
@@ -218,7 +252,9 @@ class AndCondition extends AchievementCondition {
   @override
   double progress(List<ActivityLog> logs, DateTime now) {
     if (conditions.isEmpty) return 1.0;
-    return conditions.map((c) => c.progress(logs, now)).reduce((a, b) => a < b ? a : b);
+    return conditions
+        .map((c) => c.progress(logs, now))
+        .reduce((a, b) => a < b ? a : b);
   }
 }
 
@@ -244,8 +280,8 @@ class SameDayCombinationCondition extends AchievementCondition {
   @override
   bool evaluate(List<ActivityLog> logs, DateTime now) {
     return _groupByDay(logs).values.any(
-      (dayLogs) => tags.every((t) => dayLogs.any((l) => l.tag == t)),
-    );
+          (dayLogs) => tags.every((t) => dayLogs.any((l) => l.tag == t)),
+        );
   }
 
   @override
@@ -256,5 +292,27 @@ class SameDayCombinationCondition extends AchievementCondition {
       return matched > best ? matched : best;
     });
     return (best / tags.length).clamp(0.0, 1.0);
+  }
+}
+
+/// 1日にX種類以上のタグをログ
+class SameDayMinTagVarietyCondition extends AchievementCondition {
+  const SameDayMinTagVarietyCondition(this.minCount);
+  final int minCount;
+
+  @override
+  bool evaluate(List<ActivityLog> logs, DateTime now) {
+    return _groupByDay(logs)
+        .values
+        .any((dayLogs) => _usedTags(dayLogs).length >= minCount);
+  }
+
+  @override
+  double progress(List<ActivityLog> logs, DateTime now) {
+    final best = _groupByDay(logs).values.fold(0, (best, dayLogs) {
+      final count = _usedTags(dayLogs).length;
+      return count > best ? count : best;
+    });
+    return (best / minCount).clamp(0.0, 1.0);
   }
 }

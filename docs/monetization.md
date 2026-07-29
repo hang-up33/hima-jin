@@ -82,6 +82,11 @@ cp .env.example .env
 `.env` の主なキー: `REVENUECAT_IOS_API_KEY`, `ASC_KEY_ID`, `ASC_ISSUER_ID`,
 `ASC_KEY_PATH`（詳細は `.env.example`）。
 
+GitHub Actions の TestFlight 配信では、`testflight` Environment を作成し、承認ルールと
+`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_CONTENT_BASE64`, `REVENUECAT_IOS_API_KEY`,
+`DEVELOPER_TEAM_ID`, `IOS_CERTIFICATE_BASE64`, `IOS_CERTIFICATE_PASSWORD`,
+`IOS_PROVISION_PROFILE_BASE64`, `KEYCHAIN_PASSWORD` を Environment Secrets に登録します。
+
 ---
 
 ## 6. ローカルで動かす

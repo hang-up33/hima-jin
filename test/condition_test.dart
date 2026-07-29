@@ -95,10 +95,8 @@ void main() {
         _log(ActivityTag.nap, now), // duplicate, doesn't count
         _log(ActivityTag.tv, now),
       ];
-      expect(
-          const MinTagVarietyCondition(3).evaluate(logs, now), isTrue);
-      expect(
-          const MinTagVarietyCondition(4).evaluate(logs, now), isFalse);
+      expect(const MinTagVarietyCondition(3).evaluate(logs, now), isTrue);
+      expect(const MinTagVarietyCondition(4).evaluate(logs, now), isFalse);
     });
 
     test('progress proportional to unique tags', () {
@@ -106,8 +104,7 @@ void main() {
         _log(ActivityTag.nap, now),
         _log(ActivityTag.walk, now),
       ];
-      expect(
-          const MinTagVarietyCondition(4).progress(logs, now),
+      expect(const MinTagVarietyCondition(4).progress(logs, now),
           closeTo(0.5, 0.001));
     });
   });
@@ -122,8 +119,7 @@ void main() {
     });
 
     test('true when all tags present', () {
-      final logs =
-          ActivityTag.values.map((t) => _log(t, now)).toList();
+      final logs = ActivityTag.values.map((t) => _log(t, now)).toList();
       expect(const AllTagsCondition().evaluate(logs, now), isTrue);
     });
   });
@@ -144,6 +140,22 @@ void main() {
       final logs = [_log(ActivityTag.nap, DateTime(2025, 6, 15, 10))];
       final cond = const TimeOfDayCondition(startHour: 0, endHour: 6);
       expect(cond.evaluate(logs, now), isFalse);
+    });
+  });
+
+  group('TimeOfDayCountCondition', () {
+    test('counts only logs in the configured time range', () {
+      final logs = [
+        for (var i = 0; i < 9; i++)
+          _log(ActivityTag.nap, DateTime(2025, 6, 15, 5, i)),
+        _log(ActivityTag.walk, DateTime(2025, 6, 15, 9)),
+      ];
+      final cond =
+          const TimeOfDayCountCondition(startHour: 5, endHour: 8, count: 10);
+      expect(cond.evaluate(logs, now), isFalse);
+
+      logs.add(_log(ActivityTag.read, DateTime(2025, 6, 16, 7)));
+      expect(cond.evaluate(logs, now), isTrue);
     });
   });
 
@@ -174,6 +186,32 @@ void main() {
       ];
       expect(const ConsecutiveDaysCondition(3).evaluate(logs, now), isTrue);
       expect(const ConsecutiveDaysCondition(4).evaluate(logs, now), isFalse);
+    });
+  });
+
+  group('SameDayMinTagVarietyCondition', () {
+    test('accepts any distinct tags on the same day', () {
+      final logs = [
+        _log(ActivityTag.nap, DateTime(2025, 6, 15, 9)),
+        _log(ActivityTag.walk, DateTime(2025, 6, 15, 10)),
+        _log(ActivityTag.tv, DateTime(2025, 6, 15, 11)),
+        _log(ActivityTag.read, DateTime(2025, 6, 15, 12)),
+        _log(ActivityTag.music, DateTime(2025, 6, 15, 13)),
+      ];
+      expect(
+          const SameDayMinTagVarietyCondition(5).evaluate(logs, now), isTrue);
+    });
+
+    test('does not combine tag variety across days', () {
+      final logs = [
+        _log(ActivityTag.nap, DateTime(2025, 6, 15, 9)),
+        _log(ActivityTag.walk, DateTime(2025, 6, 15, 10)),
+        _log(ActivityTag.tv, DateTime(2025, 6, 16, 11)),
+        _log(ActivityTag.read, DateTime(2025, 6, 16, 12)),
+        _log(ActivityTag.music, DateTime(2025, 6, 16, 13)),
+      ];
+      expect(
+          const SameDayMinTagVarietyCondition(5).evaluate(logs, now), isFalse);
     });
   });
 }

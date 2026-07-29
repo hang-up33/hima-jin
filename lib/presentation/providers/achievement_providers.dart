@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/achievements_data.dart';
 import '../../data/repositories/achievement_repository.dart';
+import '../../data/repositories/purchase_repository.dart';
 import '../../domain/entities/achievement.dart';
 import 'log_providers.dart';
 import 'purchase_providers.dart';
@@ -21,7 +22,9 @@ class UnlockedAchievementsNotifier
   Future<List<Achievement>> checkAndUnlock() async {
     final repo = ref.read(achievementRepositoryProvider);
     final logs = ref.read(logNotifierProvider).valueOrNull ?? [];
-    final isPro = ref.read(isProProvider);
+    final customerInfo = await ref.read(customerInfoProvider.future);
+    final isPro = ref.read(isProProvider).valueOrNull ??
+        PurchaseRepository.isProActive(customerInfo);
     final now = DateTime.now();
     final current = state.value ?? {};
     final newlyUnlocked = <Achievement>[];
@@ -55,13 +58,14 @@ final unlockedIdSetProvider = Provider<Set<String>>((ref) {
       {};
 });
 
-typedef EnrichedAchievement = ({Achievement achievement, UnlockedAchievement? unlocked});
+typedef EnrichedAchievement = ({
+  Achievement achievement,
+  UnlockedAchievement? unlocked
+});
 
 /// 全実績 + 解除情報を結合したリスト
-final enrichedAchievementsProvider =
-    Provider<List<EnrichedAchievement>>((ref) {
-  final unlockedMap =
-      ref.watch(unlockedAchievementsProvider).valueOrNull ?? {};
+final enrichedAchievementsProvider = Provider<List<EnrichedAchievement>>((ref) {
+  final unlockedMap = ref.watch(unlockedAchievementsProvider).valueOrNull ?? {};
   return kAllAchievements.map((a) {
     return (achievement: a, unlocked: unlockedMap[a.id]);
   }).toList();
@@ -73,8 +77,7 @@ final unlockedCountProvider = Provider<int>((ref) {
 });
 
 /// 各実績の進捗（0.0〜1.0）
-final achievementProgressProvider =
-    Provider.family<double, String>((ref, id) {
+final achievementProgressProvider = Provider.family<double, String>((ref, id) {
   final logs = ref.watch(logNotifierProvider).valueOrNull ?? [];
   final achievement = kAllAchievements.firstWhere((a) => a.id == id);
   return achievement.condition.progress(logs, DateTime.now());
